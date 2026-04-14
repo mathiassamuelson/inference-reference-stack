@@ -1,0 +1,12 @@
+# Grafana provisioned datasource: the Prometheus instance in this Compose stack.
+# Containerized Grafana picks this up on startup; no UI clicks required.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
