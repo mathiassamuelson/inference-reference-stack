@@ -1,0 +1,74 @@
+# ---- Environment & secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+
+# ---- Docker & Compose ----
+# Local overrides that shouldn't be shared
+docker-compose.override.yml
+docker-compose.*.local.yml
+
+# ---- Persistent data volumes ----
+# Anything a running service writes to disk locally
+data/
+volumes/
+prometheus-data/
+grafana-data/
+triton-logs/
+nginx-logs/
+
+# ---- Model caches ----
+# Models are large and fetched on demand; never commit
+models/
+model_cache/
+.cache/
+huggingface/
+*.safetensors
+*.bin
+*.gguf
+
+# ---- TLS / certs for local dev ----
+certs/
+*.csr
+
+# ---- Python (for any helper scripts) ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# ---- Node (if any tooling shows up) ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- Editors & OS ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ---- Scratch / local notes ----
+scratch/
+tmp/
+*.local.md
+TODO.local
