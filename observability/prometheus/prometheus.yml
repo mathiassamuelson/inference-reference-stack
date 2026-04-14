@@ -1,8 +1,10 @@
 # Prometheus scrape config for inference-reference-stack.
 #
-# Triton exposes metrics on port 8002 by default. nginx metrics and
-# exporter-based system metrics (node_exporter, nvidia-dcgm-exporter) can
-# be added in later work.
+# vLLM's OpenAI-compatible server exposes Prometheus metrics at /metrics on
+# the same port as the API (8000), unlike Triton which used a dedicated port.
+#
+# nginx metrics and exporter-based system metrics (node_exporter,
+# nvidia-dcgm-exporter) can be added in later work.
 
 global:
   scrape_interval:     15s
@@ -13,7 +15,7 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  - job_name: triton
+  - job_name: vllm
     metrics_path: /metrics
     static_configs:
-      - targets: ['triton:8002']
+      - targets: ['vllm:8000']
