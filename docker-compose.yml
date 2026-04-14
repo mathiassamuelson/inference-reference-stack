@@ -18,21 +18,26 @@ services:
     ports:
       # Bound to localhost only; nginx is the public ingress.
       - "127.0.0.1:8000:8000"   # HTTP — OpenAI-compatible API and /metrics
+    environment:
+      # Required for downloading gated models from HuggingFace Hub.
+      - HF_TOKEN=${HF_TOKEN:-}
     volumes:
       - ${HF_CACHE_DIR}:/root/.cache/huggingface
+    # Matches the Week 9 launch command. Model path is positional (first arg).
     command:
-      - --model
       - cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit
-      - --served-model-name
-      - gemma-4-26b-awq
       - --tensor-parallel-size
       - "2"
-      - --quantization
-      - compressed-tensors
-      - --gpu-memory-utilization
-      - "0.90"
       - --max-model-len
       - "16384"
+      - --gpu-memory-utilization
+      - "0.90"
+      - --limit-mm-per-prompt
+      - '{"image":0,"audio":0}'
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
     deploy:
       resources:
         reservations:
