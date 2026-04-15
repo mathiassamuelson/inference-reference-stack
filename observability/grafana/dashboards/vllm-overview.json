@@ -130,7 +130,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-          "expr": "avg by (engine) (vllm:gpu_cache_usage_perc)",
+          "expr": "avg by (engine) (vllm:kv_cache_usage_perc)",
           "legendFormat": "engine {{engine}}",
           "refId": "A"
         }
