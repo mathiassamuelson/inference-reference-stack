@@ -99,6 +99,24 @@ services:
     networks:
       - irs
 
+  dcgm-exporter:
+    image: nvidia/dcgm-exporter:3.3.9-3.6.1-ubuntu22.04
+    container_name: irs-dcgm-exporter
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu, utility ]
+    ports:
+      - "127.0.0.1:9400:9400"
+    networks:
+      - irs
+
 volumes:
   nginx-logs:
   prometheus-data:
