@@ -117,6 +117,31 @@ services:
     networks:
       - irs
 
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: irs-node-exporter
+    restart: unless-stopped
+    # Host PID namespace + host mounts so the exporter reports true host
+    # CPU/RAM/disk rather than its own container namespace. Required for the
+    # boot-choreography host-contention measurements.
+    pid: host
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/rootfs
+      # Exclude pseudo / virtual filesystems from the filesystem collector so
+      # disk metrics reflect real mounts (incl. the NVMe holding model files).
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|rootfs)($|/)
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      # Bound to localhost only, matching the other exporters.
+      - "127.0.0.1:9100:9100"
+    networks:
+      - irs
+
 volumes:
   nginx-logs:
   prometheus-data:
