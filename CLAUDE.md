@@ -22,11 +22,14 @@ docker compose exec nginx nginx -t   # validate nginx.conf before reload
 docker compose exec nginx nginx -s reload
 
 curl http://localhost:8000/v1/models       # vLLM directly (localhost-only bind)
-curl localhost:9090/-/reload               # hot-reload Prometheus (web.enable-lifecycle is on)
+curl -X POST localhost:9090/-/reload        # hot-reload Prometheus (web.enable-lifecycle is on)
+docker compose up -d --force-recreate prometheus   # ...but see the inode note below
 docker logs irs-nginx                      # access log shows $upstream_addr per request
 ```
 
 There is no lint/test. The "verification instrument" for routing is the nginx access log: it records `upstream=$upstream_addr` per request to stdout, which is how pool distribution and named-route pinning are confirmed.
+
+**Reloading Prometheus usually does not do what the reload command says.** Every config here is a *single-file* bind mount, so the container pins that file's inode at create time. Any editor that writes atomically — replace-and-rename, which is most of them, including `sed -i` — leaves the container holding the old inode. `/-/reload` then returns **200 having re-read the unchanged file**, and `docker compose ps` shows everything healthy. Confirm with `docker exec irs-prometheus grep <your-change> /etc/prometheus/prometheus.yml` before believing a reload; if it is not there, `docker compose up -d --force-recreate prometheus`. The same trap applies to `nginx.conf` and the Grafana provisioning files.
 
 ## Port and bind conventions
 
