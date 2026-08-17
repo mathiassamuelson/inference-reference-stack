@@ -15,10 +15,35 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
+  # The vLLM actually serving on this host is NOT this project's `vllm` service.
+  # It is bundle-monitor's Gemma 4 31B FP8 endpoint, run from
+  # ~/work/bundle-monitor/deploy/vllm on host networking -- so there is no
+  # `vllm` name on the irs bridge network to resolve, and this job scraped a
+  # dead DNS name from the moment this project's own vllm service stopped
+  # existing. This project's service cannot start here regardless: it asks for
+  # device_ids ["0","2"] with TP=2 and the host has one GPU.
+  #
+  # DELIBERATE DEVIATION from the split-brain rule in CLAUDE.md ("use service
+  # names inside config that runs in a container"). That rule presumes the
+  # target IS a service in this project. This one is not and cannot be made
+  # into one, so there is no service name to use; an address is the only thing
+  # left. The rule still holds for dcgm/node below.
+  #
+  # LAN IP rather than the docker bridge gateway (172.17.0.1): both reach it,
+  # but the gateway is a docker implementation detail that moves, and
+  # 192.168.1.73:8000 is the same address bundle-monitor's own config names --
+  # one endpoint, written one way.
+  #
+  # job_name stays `vllm`: observability/grafana/dashboards/vllm-overview.json
+  # selects on it.
+  #
+  # NOTE: this file is a single-file bind mount, so the container pins its
+  # inode. Editing it and hitting `curl localhost:9090/-/reload` returns 200
+  # and changes NOTHING. Use `docker compose up -d --force-recreate prometheus`.
   - job_name: vllm
     metrics_path: /metrics
     static_configs:
-      - targets: ['vllm:8000']
+      - targets: ['192.168.1.73:8000']
 
   - job_name: dcgm
     static_configs:
